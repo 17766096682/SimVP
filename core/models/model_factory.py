@@ -43,7 +43,9 @@ class Model(object):
         # for param_tensor in self.network.state_dict():  # 字典的遍历默认是遍历 key，所以param_tensor实际上是键值
         #     print(param_tensor, '\t', self.network.state_dict()[param_tensor].size())
         self.optimizer = Adam(self.network.parameters(), lr=configs.lr)
-        self.scheduler = lr_scheduler.ExponentialLR(self.optimizer, gamma=configs.lr_decay)
+        # self.scheduler = lr_scheduler.ExponentialLR(self.optimizer, gamma=configs.lr_decay)
+        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+            self.optimizer, max_lr=self.configs.lr, steps_per_epoch=327, epochs=51)
 
         self.MSE_criterion = nn.MSELoss()
         self.L1_loss = nn.L1Loss()
@@ -100,7 +102,7 @@ class Model(object):
         next_frames = self.network(image_batch)
         return next_frames.detach().cpu().numpy()
 
-    def set_seed(self,seed):
+    def set_seed(self, seed):
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
